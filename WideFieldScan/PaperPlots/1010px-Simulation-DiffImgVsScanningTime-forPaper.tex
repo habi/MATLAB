@@ -1,0 +1,54 @@
+% This file was created by matlab2tikz v0.0.4.
+
+\documentclass{article}
+\usepackage{tikz,pgfplots}
+\usepackage[pdftex,active,tightpage]{preview}
+\begin{document}
+\begin{preview}
+%%%%%%%%%%%%
+\begin{tikzpicture}
+
+% defining custom colors
+\definecolor{mycolor1}{rgb}{0,0.5,0}
+
+% Axis at [0.13 0.11 0.78 0.81]
+\begin{axis}[
+axis on top,
+scale only axis,
+width=4.52083in,
+height=3.56562in,
+xmin=0, xmax=120,
+ymin=0, ymax=120,
+xlabel={$Time used [Percent of Gold Standard]$},
+ylabel={$Expected Quality of the Scan [Percent]$},
+title={$Quality plotted vs. sorted Total Number of Projections$},
+xmajorgrids,
+ymajorgrids,
+legend entries={$polynomial Fit$,$Protocols$},
+legend style={,
+at={(0.97,0.03)},anchor=south east,
+}
+]
+
+\addplot [
+color=blue,
+solid
+]coordinates{
+ (16.1111,16.4949) (19.3333,30.5352) (29.0221,61.8546) (32.2222,69.1744) (38.6667,80.294) (40.2815,82.4259) (48.3333,89.9497) (48.3555,89.9642) (56.4073,93.5958) (58,93.9896) (64.4444,94.8346) (67.6888,94.93) (72.5184,94.8297) (77.3333,94.5792) (80.5556,94.3862) (87.0221,94.0383) (96.6667,93.7045) (96.6667,93.7045) (116,91.6917)
+};
+
+\addplot [
+color=mycolor1,
+only marks,
+mark=o,
+mark options={solid}
+]coordinates{
+ (16.1111,27.2746) (19.3333,16) (29.0221,54.522) (32.2222,82.9314) (38.6667,71.0317) (40.2815,92.3918) (48.3333,97.3455) (48.3555,80.4994) (56.4073,99.3905) (58,85.2224) (64.4444,99.8641) (67.6888,87.9669) (72.5184,100) (77.3333,89.506) (80.5556,99.6238) (87.0221,90.6394) (96.6667,98.2556) (96.6667,91.1958) (116,91.3161)
+};
+
+\end{axis}
+
+\end{tikzpicture}
+%%%%%%%%%%%%
+\end{preview}
+\end{document}

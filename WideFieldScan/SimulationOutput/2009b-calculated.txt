@@ -1,0 +1,32 @@
+# Path = /sls/X02DA/data/e11126/MATLAB/WideFieldScan/SimulationOutput
+# SampleName = 2009b
+# chosen FOV = 4 mm
+# chosen FOV = 2703 pixels
+# actual FOV = 2772 pixels
+# DetectorWidth = 1024 pixels
+# Exposure Time = 125 ms per Projection
+# Magnification = 10 x
+# Binning = 2 x 2
+# Overlap = 100 pixels
+#---
+# NumProj InBeamPosition StartAngle StopAngle
+#--- Protocol 1
+5040 -1367.5 0 180
+5040 0 0 180
+5040 1367.5 0 180
+#--- Protocol 2
+4536 -1367.5 0 180
+4536 0 0 180
+4536 1367.5 0 180
+#--- Protocol 3
+4032 -1367.5 0 180
+4032 0 0 180
+4032 1367.5 0 180
+#--- Protocol 4
+3528 -1367.5 0 180
+3528 0 0 180
+3528 1367.5 0 180
+#--- Protocol 5
+3024 -1367.5 0 180
+3024 0 0 180
+3024 1367.5 0 180

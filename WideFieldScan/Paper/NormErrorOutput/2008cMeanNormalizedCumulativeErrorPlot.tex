@@ -1,0 +1,56 @@
+% This file was created by matlab2tikz v0.0.4.
+
+\documentclass{article}
+\usepackage{tikz,pgfplots}
+\usepackage[pdftex,active,tightpage]{preview}
+\begin{document}
+\begin{preview}
+%%%%%%%%%%%%
+\begin{tikzpicture}
+
+% Axis at [0.13 0.11 0.78 0.81]
+\begin{axis}[
+axis on top,
+scale only axis,
+width=4.52083in,
+height=3.56562in,
+xmin=0, xmax=20,
+ymin=0, ymax=100,
+xtick={1,2,3,4,5,6,7,8,9,10,11,12,13,14,15,16,17,18,19},
+xticklabels={t,s,r,q,p,o,n,m,l,k,j,i,h,g,f,e,d,c,b},
+title={$Mean Normalized "Quality" (au) of the Difference Image compared to Protocol "b" for 449 Slices$}
+]
+
+\addplot [
+color=blue,
+solid
+]
+plot[error bars/.cd, y dir = both, y explicit]
+coordinates{
+ (1,0) +- (0,0)
+ (2,30.2193) +- (0,6.01348)
+ (3,38.0471) +- (0,1.42415)
+ (4,26.3844) +- (0,2.53488)
+ (5,56.8382) +- (0,2.36029)
+ (6,44.3381) +- (0,4.62642)
+ (7,52.4127) +- (0,5.79971)
+ (8,54.2552) +- (0,1.54028)
+ (9,63.7546) +- (0,1.62687)
+ (10,44.6482) +- (0,6.03453)
+ (11,65.4872) +- (0,7.40768)
+ (12,61.6944) +- (0,2.86634)
+ (13,74.6593) +- (0,2.57508)
+ (14,60.2369) +- (0,3.84255)
+ (15,65.8499) +- (0,4.902)
+ (16,72.3196) +- (0,0.995439)
+ (17,87.2588) +- (0,0.663304)
+ (18,77.9561) +- (0,2.11437)
+ (19,100) +- (0,0)
+};
+
+\end{axis}
+
+\end{tikzpicture}
+%%%%%%%%%%%%
+\end{preview}
+\end{document}

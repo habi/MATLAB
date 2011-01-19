@@ -1,0 +1,17 @@
+# Path = P:\MATLAB\WideFieldScan\PreferenceFiles\2009d
+# SampleName = 2009c-Batch
+# chosen FOV = 4.1 mm
+# chosen FOV = 2770 pixels
+# actual FOV = 2772 pixels
+# DetectorWidth = 1024 pixels
+# Exposure Time = 125 ms per Projection
+# Magnification = 10 x
+# Binning = 2 x 2
+# Overlap = 100 pixels
+# Chosen Protocol = Nr. 13
+#---
+# NumProj InBeamPosition StartAngle StopAngle
+#--- Protocol 13/3265 total Proj./27 ---#
+1306 -1367.5 0 180
+653 0 0 180
+1306 1367.5 0 180

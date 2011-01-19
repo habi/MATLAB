@@ -1,0 +1,17 @@
+# Path = P:\MATLAB\WideFieldScan\PreferenceFiles\2009d
+# SampleName = R108C60Da
+# chosen FOV = 4.1 mm
+# chosen FOV = 2770 pixels
+# actual FOV = 2772 pixels
+# DetectorWidth = 1024 pixels
+# Exposure Time = 125 ms per Projection
+# Magnification = 10 x
+# Binning = 2 x 2
+# Overlap = 100 pixels
+# Chosen Protocol = Nr. 8
+#---
+# NumProj InBeamPosition StartAngle StopAngle
+#--- Protocol 8/7839 total Proj./62 minutes ---#
+2613 -1367.5 0 180
+2613 0 0 180
+2613 1367.5 0 180

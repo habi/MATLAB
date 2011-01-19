@@ -1,0 +1,68 @@
+# Path = P:\MATLAB\WideFieldScan\PreferenceFiles\2009d
+# SampleName = 2009d-Batch
+# chosen FOV = 4.1 mm
+# chosen FOV = 2770 pixels
+# actual FOV = 2772 pixels
+# DetectorWidth = 1024 pixels
+# Exposure Time = 125 ms per Projection
+# Magnification = 10 x
+# Binning = 2 x 2
+# Overlap = 100 pixels
+#---
+# NumProj InBeamPosition StartAngle StopAngle
+#--- Protocol 1/13062 total Proj./101 minutes ---
+4354 -1367.5 0 180
+4354 0 0 180
+4354 1367.5 0 180
+#--- Protocol 2/10885 total Proj./84 minutes ---
+4354 -1367.5 0 180
+2177 0 0 180
+4354 1367.5 0 180
+#--- Protocol 3/11757 total Proj./89 minutes ---
+3919 -1367.5 0 180
+3919 0 0 180
+3919 1367.5 0 180
+#--- Protocol 4/10449 total Proj./80 minutes ---
+3483 -1367.5 0 180
+3483 0 0 180
+3483 1367.5 0 180
+#--- Protocol 5/9144 total Proj./71 minutes ---
+3048 -1367.5 0 180
+3048 0 0 180
+3048 1367.5 0 180
+#--- Protocol 6/7620 total Proj./59 minutes ---
+3048 -1367.5 0 180
+1524 0 0 180
+3048 1367.5 0 180
+#--- Protocol 7/6858 total Proj./54 minutes ---
+3048 -1367.5 0 180
+762 0 0 180
+3048 1367.5 0 180
+#--- Protocol 8/7839 total Proj./62 minutes ---
+2613 -1367.5 0 180
+2613 0 0 180
+2613 1367.5 0 180
+#--- Protocol 9/6531 total Proj./50 minutes ---
+2177 -1367.5 0 180
+2177 0 0 180
+2177 1367.5 0 180
+#--- Protocol 10/5226 total Proj./41 minutes ---
+1742 -1367.5 0 180
+1742 0 0 180
+1742 1367.5 0 180
+#--- Protocol 11/4355 total Proj./35 minutes ---
+1742 -1367.5 0 180
+871 0 0 180
+1742 1367.5 0 180
+#--- Protocol 12/3918 total Proj./32 minutes ---
+1306 -1367.5 0 180
+1306 0 0 180
+1306 1367.5 0 180
+#--- Protocol 13/3265 total Proj./27 minutes ---
+1306 -1367.5 0 180
+653 0 0 180
+1306 1367.5 0 180
+#--- Protocol 14/2613 total Proj./23 minutes ---
+871 -1367.5 0 180
+871 0 0 180
+871 1367.5 0 180

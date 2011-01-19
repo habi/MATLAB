@@ -1,0 +1,66 @@
+\documentclass{article}
+\usepackage{tikz,pgfplots}
+\usepackage[pdftex,active,tightpage]{preview}
+
+\begin{document}
+\begin{preview}
+
+\begin{tikzpicture}
+\pgfplotsset{every axis grid/.style={style=dotted}}
+\pgfplotsset{every axis legend/.append style={
+	at={(.618,.5)},
+	anchor=south west}}
+\begin{axis}[%
+	xtick={0,20,40,60,80,100,120,140,160},%
+	ytick={0,20,40,60,80,100},%
+	xlabel={Scanning Time [min]},%
+	ylabel={Simulated Quality [\%]},%
+	xmajorgrids,%
+	ymajorgrids%
+]
+\begin{tikzpicture}
+
+% defining custom colors
+\definecolor{mycolor1}{rgb}{0,0.5,0}
+
+\begin{axis}[
+axis on top,
+scale only axis,
+width=4.52083in,
+height=3.56562in,
+xmin=0, xmax=140,
+ymin=0, ymax=120,
+xtick={0,20,40,60,80,100,120,140},
+ytick={0,20,40,60,80,100,120},
+xlabel={$estimated Scanning Time [min]$},
+ylabel={$Expected Quality of the Scan [\%]$},
+title={$Quality plotted vs. sorted Total Number of Projections$},
+xmajorgrids,
+ymajorgrids,
+legend entries={$polynomial Fit$,$Protocols$},
+legend style={at={(0.97,0.03)},anchor=south east}
+]
+
+\addplot [
+color=blue,
+solid
+] coordinates{
+ (12.1,11.9019) (18.15,52.4108) (21.1633,66.001) (23.2833,73.4842) (24.1833,76.2075) (27.5167,84.2632) (29.6333,87.9608) (30.2333,88.8387) (36.2833,94.4208) (38.1033,95.2148) (40.2167,95.7872) (42.3333,96.0726) (44.45,96.151) (46.5667,96.0911) (48.3833,95.9739) (50.7967,95.7783) (52.9167,95.6101) (54.4333,95.5092) (55.0333,95.476) (59.2667,95.3852) (60.4833,95.4123) (66.5167,95.908) (67.7367,96.0729) (72.5667,96.8638) (78.6167,97.9251) (80.43,98.1992) (84.6667,98.6629) (90.7167,98.7173) (96.7667,97.942) (102.817,96.5478) (108.85,95.2495) (114.9,95.3938) (120.95,99.1305)
+};
+
+\addplot [
+color=mycolor1,
+only marks,
+mark=o,
+mark options={solid}
+] coordinates{
+ (12.1,10) (18.15,43.1019) (21.1633,79.1639) (23.2833,89.8527) (24.1833,64.0984) (27.5167,91.7191) (29.6333,92.1595) (30.2333,76.0943) (36.2833,83.8931) (38.1033,96.7186) (40.2167,96.4501) (42.3333,88.3038) (44.45,99.4897) (46.5667,100) (48.3833,91.2892) (50.7967,98.6159) (52.9167,98.9419) (54.4333,93.0193) (55.0333,99.4515) (59.2667,99.5314) (60.4833,93.9494) (66.5167,94.8926) (67.7367,99.7934) (72.5667,95.2777) (78.6167,95.9482) (80.43,99.9359) (84.6667,96.3391) (90.7167,96.7124) (96.7667,96.8403) (102.817,97.1279) (108.85,97.2587) (114.9,97.3893) (120.95,97.2039)
+};
+
+\end{axis}
+
+\end{tikzpicture}
+
+\end{preview}
+
+\end{document}

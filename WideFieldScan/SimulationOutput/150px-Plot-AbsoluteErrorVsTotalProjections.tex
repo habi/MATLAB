@@ -1,0 +1,31 @@
+\begin{tikzpicture}
+
+\begin{axis}[
+axis on top,
+scale only axis,
+width=3.3625in,
+height=3.56563in,
+xmin=0, xmax=40000,
+ymin=1000, ymax=2800,
+xtick={0,10000,20000,30000,40000},
+xticklabels={0,1,2,3,4},
+ytick={1000,1200,1400,1600,1800,2000,2200,2400,2600,2800},
+xlabel={$Total Number Of Projections per Protocol$},
+ylabel={$$$\sum\sum$$(imabsdiff(Phantom-Reconstruction)) [au]$},
+title={$Absolute Error, sorted with Total Number of Projections$},
+xmajorgrids,
+ymajorgrids
+]
+
+\addplot [
+color=blue,
+solid,
+mark=o,
+mark options={solid}
+] coordinates{
+ (3630,2745.5) (5445,2158.57) (6349,1519.15) (6985,1329.62) (7255,1786.28) (8255,1296.53) (8890,1288.72) (9070,1573.58) (10885,1435.3) (11431,1207.88) (12065,1212.65) (12700,1357.09) (13335,1158.75) (13970,1149.7) (14515,1304.15) (15239,1174.24) (15875,1168.46) (16330,1273.48) (16510,1159.43) (17780,1158.01) (18145,1256.99) (19955,1240.26) (20321,1153.36) (21770,1233.43) (23585,1221.54) (24129,1150.84) (25400,1214.61) (27215,1208) (29030,1205.73) (30845,1200.63) (32655,1198.31) (34470,1195.99) (36285,1199.28)
+};
+
+\end{axis}
+
+\end{tikzpicture}

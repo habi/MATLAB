@@ -1,0 +1,39 @@
+% This file was created by matlab2tikz v0.0.4.
+
+\documentclass{article}
+\usepackage{tikz,pgfplots}
+\usepackage[pdftex,active,tightpage]{preview}
+\begin{document}
+\begin{preview}
+%%%%%%%%%%%%
+\begin{tikzpicture}
+
+% Axis at [0.13 0.11 0.78 0.81]
+\begin{axis}[
+axis on top,
+scale only axis,
+width=4.52083in,
+height=3.56562in,
+xmin=0, xmax=20,
+ymin=2000, ymax=16000,
+xtick={1,2,3,4,5,6,7,8,9,10,11,12,13,14,15,16,17,18,19},
+xticklabels={19,18,17,16,15,14,12,13,10,11,8,9,6,7,4,5,2,3,1},
+xlabel={$Protocol$},
+ylabel={$Total NumProj$}
+]
+
+\addplot [
+color=blue,
+solid,
+mark=o,
+mark options={solid}
+]coordinates{
+ (1,2185) (2,2622) (3,3936) (4,4370) (5,5244) (6,5463) (7,6555) (8,6558) (9,7650) (10,7866) (11,8740) (12,9180) (13,9835) (14,10488) (15,10925) (16,11802) (17,13110) (18,13110) (19,15732)
+};
+
+\end{axis}
+
+\end{tikzpicture}
+%%%%%%%%%%%%
+\end{preview}
+\end{document}

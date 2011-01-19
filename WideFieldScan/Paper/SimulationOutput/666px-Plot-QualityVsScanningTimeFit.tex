@@ -1,0 +1,42 @@
+\begin{tikzpicture}
+
+% defining custom colors
+\definecolor{mycolor1}{rgb}{0,0.5,0}
+
+\begin{axis}[
+axis on top,
+scale only axis,
+width=4.52083in,
+height=3.56562in,
+xmin=10, xmax=100,
+ymin=0, ymax=120,
+xtick={10,20,30,40,50,60,70,80,90,100},
+ytick={0,20,40,60,80,100,120},
+xlabel={$Scanning Time [% of Gold Standard]$},
+ylabel={$Expected Quality of the Scan [%]$},
+title={$Quality plotted vs. sorted Total Number of Projections$},
+xmajorgrids,
+ymajorgrids,
+legend entries={$polynomial Fit$,$Protocols$},
+legend style={at={(0.97,0.03)},anchor=south east}
+]
+
+\addplot [
+color=blue,
+solid
+] coordinates{
+ (13.7508,16.6918) (16.5009,26.489) (24.7703,48.3679) (27.5016,53.6134) (33.0019,61.969) (34.3801,63.6786) (41.2524,70.4622) (41.2712,70.4775) (48.1435,75.1495) (49.5028,75.9) (55.0031,78.5257) (57.7722,79.657) (61.8943,81.1838) (66.0038,82.5887) (68.7539,83.4989) (74.2731,85.3476) (82.5047,88.5122) (82.5047,88.5122) (99.0057,99.8525)
+};
+
+\addplot [
+color=mycolor1,
+only marks,
+mark=o,
+mark options={solid}
+] coordinates{
+ (13.7508,20) (16.5009,21.5125) (24.7703,47.7279) (27.5016,56.6004) (33.0019,62.3855) (34.3801,64.1248) (41.2524,69.5957) (41.2712,70.291) (48.1435,73.4408) (49.5028,76.6712) (55.0031,77.6943) (57.7722,81.2167) (61.8943,79.411) (66.0038,84.9699) (68.7539,81.6118) (74.2731,87.5584) (82.5047,85.8819) (82.5047,89.7838) (99.0057,100)
+};
+
+\end{axis}
+
+\end{tikzpicture}

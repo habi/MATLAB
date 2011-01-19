@@ -1,0 +1,16 @@
+%\documentclass{article}
+%\usepackage[pdftex,active,tightpage]{preview}
+%\usepackage{pgf,tikz}
+%\begin{document}
+%\begin{preview}
+\begin{tikzpicture}[scale=0.75]
+	\draw [shade] (0,0) ellipse (-2.5 and 1);
+%	\draw [shade] (0,0) ellipse (1 and 2.5);
+	\draw (0,0) circle (2.5);
+	\draw [->] (-3.5,0) node [above] {beam} -- (3,0);
+	\draw (3,-1) rectangle (5,1);
+	\node [above] at (0,0) {sample};
+	\node [anchor=center] at (4,0) {camera};
+\end{tikzpicture}
+%\end{preview}
+%\end{document}
