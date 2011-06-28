@@ -9,14 +9,15 @@ clear all
 close all
 
 Path = 'd:\SLS\';
-Beamtime = '2010a';
+Beamtime = '2009f\mrg';
 
 Scalebar = 100; % micrometer
-Iteration = 2;
+Iteration = 6;
 
 [DICOMFileName PathToDICOMFile] = uigetfile({'*.dcm','DICOM File';'*.dcm','All Files' },['Open an exported DICOM file from Beamtime ' Beamtime],[Path Beamtime filesep '*.dcm']);
 
-DICOMFile = uint8(dicomread([PathToDICOMFile DICOMFileName]));
+DICOMFile = double(dicomread([PathToDICOMFile DICOMFileName])); % read in DICOM File as double
+DICOMFile = DICOMFile / max(max(max(DICOMFile))).*255; % scale to a maximum value of 255, still in double
 
 %% Show slices of the DICOM-File
 slices = size(DICOMFile,4);
@@ -48,14 +49,17 @@ AcinusPath = [PathToDICOMFile AcinusName filesep 'voxelsize' num2str(VoxelSize) 
 mkdir(AcinusPath)
 
 figure
-SliceCounter = 1
+SliceCounter = 1;
 for slice = 1:Iteration:slices
-    clc
+    % clc
     disp(['writing file ' num2str(slice) '/' num2str(slices)])
     WriteFileName = [ SampleName '-' AcinusName '-' num2str(SliceCounter) '.jpg' ];
     SliceCounter = SliceCounter + 1;
+    % Pad CurrentSlice to square size of longer side
+    CurrentSlice = ones(max(size(DICOMFile(:,:,slice)))).*255; % Make square image with larger length of original DICOM file (white square)
+    CurrentSlice(1:size(DICOMFile(:,:,slice),1),1:size(DICOMFile(:,:,slice),2)) = DICOMFile(:,:,slice); % Write DICOM file to top left corner of white square of above line
+    CurrentSlice = uint8(CurrentSlice); % convert to uint8 before saving and displaying
     % Make Scalebar
-    CurrentSlice = DICOMFile(:,:,slice);
     ScaleBarLength = round(Scalebar/VoxelSize);
     CurrentSlice(size(DICOMFile,1)-10-(round(ScaleBarLength/10)):size(DICOMFile,1)-10,10:10+ScaleBarLength) = 255; % draw Scalebar of length(ScaleBarLength) in the bottom left corner, with 10 times the length of the height.
     imshow(CurrentSlice,[])
@@ -65,5 +69,5 @@ for slice = 1:Iteration:slices
 end
 
 disp(['I have written ' AcinusName ' with Volume ' num2str(Volume) ' to ' AcinusPath filesep SampleName '-' AcinusName '-x.jpg']);
-disp(['I have witten every ' num2str(Iteration) ' slice!'])
+disp(['I have witten every ' num2str(Iteration) 'th slice!'])
 disp(['The scalebar on the image is ' num2str(Scalebar) ' micrometer long.'])
