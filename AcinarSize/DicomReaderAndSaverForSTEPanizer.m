@@ -44,7 +44,9 @@ Volume = DICOMFileName(VolumeStartPointer+6:VolumeEndPointer-2);
 
 AcinusStartPointer = regexp(DICOMFileName, 'acinus', 'once');
 AcinusEndPointer = regexp(DICOMFileName, '.volume', 'once');
-AcinusName = DICOMFileName(AcinusStartPointer:AcinusEndPointer-1);
+AcinusNumber = DICOMFileName(AcinusStartPointer+6:AcinusEndPointer-1); % remove "acinus", so we can format the number nicely
+AcinusNumber = (sprintf('%02d',str2num(AcinusNumber))); % format string to number and pad with zero if necessary
+AcinusName = [ 'acinus' AcinusNumber ];
 AcinusPath = [PathToDICOMFile AcinusName filesep 'voxelsize' num2str(VoxelSize) '-every' num2str(Iteration) 'slice' ];
 mkdir(AcinusPath)
 
