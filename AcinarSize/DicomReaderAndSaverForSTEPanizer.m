@@ -11,6 +11,7 @@ clear all
 close all
 
 Scalebar = 100; % micrometer
+Disector = 0;
 Iteration = 6;
 
 SamplePath = uigetdir('d:\SLS\','Select *Directory* of the Sample you want to convert the DICOM-Files from MeVisLab to JPG for STEPanizer');
@@ -28,31 +29,13 @@ for i=1:NumberOfDICOMFiles
     PathToDICOMFile = [SamplePath filesep]; % Carried over from first manual script, just leave it for the moment...
     DICOMFileName = filelist(i).name; % Carried over from first manual script
     
-    disp([ 'Reading File ' num2str(i) '/' num2str(NumberOfDICOMFiles) ]);
-        
-    DICOMFile = double(dicomread([PathToDICOMFile DICOMFileName])); % read in DICOM File as double
-    DICOMFile = DICOMFile / max(max(max(DICOMFile))).*255; % scale to a maximum value of 255, still in double
-    
-    disp('---');
-    
-    %% Show slices of the DICOM-File
-    slices = size(DICOMFile,4);
-    subplotrows = 4;
-%     figure
-%         for ctr=1:(subplotrows^2)
-%             subplot(subplotrows,subplotrows,ctr)
-%             showslice = round(slices/(subplotrows^2)*ctr);
-%             imshow(DICOMFile(:,:,showslice),[]);
-%             title(['Slice ' num2str(showslice)])
-%         end
-    pause(0.001)
-
     %% Extract SampleName and Number of Acinus and make directory to save slices into
     SampleNameStartPointer = regexp(PathToDICOMFile, 'R108', 'once');
     SampleName = PathToDICOMFile(SampleNameStartPointer:end-1);
 
     VoxelSizeStartPointer = regexp(DICOMFileName, 'pixelsize', 'once');
     VoxelSize = 1000*str2num(DICOMFileName(VoxelSizeStartPointer+9:end-4)); % VoxelSize in micrometer
+    ScaleBarLength = round(Scalebar/VoxelSize);
 
     VolumeStartPointer = regexp(DICOMFileName, 'volume', 'once');
     VolumeEndPointer = regexp(DICOMFileName, 'pixelsize', 'once');
@@ -63,35 +46,79 @@ for i=1:NumberOfDICOMFiles
     AcinusNumber = DICOMFileName(AcinusStartPointer+6:AcinusEndPointer-1); % remove "acinus", so we can format the number nicely
     AcinusNumber = (sprintf('%02d',str2num(AcinusNumber))); % format string to number and pad with zero if necessary
     AcinusName = [ 'acinus' AcinusNumber ];
-    AcinusPath = [PathToDICOMFile AcinusName filesep 'voxelsize' num2str(VoxelSize) '-every' num2str(Iteration) 'slice' ];
+    if Disector == 0
+        AcinusPath = [PathToDICOMFile AcinusName filesep 'voxelsize' num2str(VoxelSize) '-every' num2str(Iteration) 'slice' ];
+    elseif Disector == 1
+        AcinusPath = [PathToDICOMFile AcinusName filesep 'voxelsize' num2str(VoxelSize) '-every' num2str(Iteration) 'slice-Disector' ];
+    else
+        warndlg('Please set Disector to either 0 or 1');
+        break        
+    end
     [status,message,messageid] = mkdir(AcinusPath);
-
+    
+    %% actually read File
+    disp([ 'Reading File ' num2str(i) '/' num2str(NumberOfDICOMFiles) ]);
+        
+    DICOMFile = double(dicomread([PathToDICOMFile DICOMFileName])); % read in DICOM File as double
+    DICOMFile = DICOMFile / max(max(max(DICOMFile))).*255; % scale to a maximum value of 255, still in double
+    
+    %% Show slices of the DICOM-File
+    slices = size(DICOMFile,4);
+    subplotrows = 4;
+%     figure
+%         for ctr=1:(subplotrows^2)
+%  subplot(subplotrows,subplotrows,ctr)
+%  showslice = round(slices/(subplotrows^2)*ctr);
+%  imshow(DICOMFile(:,:,showslice),[]);
+%  title(['Slice ' num2str(showslice)])
+%         end
+    pause(0.001)
+   
+    disp('---');
+    
+    %% Write out Slices to JPG images
     % figure
     SliceCounter = 1;
     for slice = 1:Iteration:slices
-        % clc
-        disp(['writing file ' num2str(slice) '/' num2str(slices)])
-        WriteFileName = [ SampleName '-' AcinusName '-' num2str(SliceCounter) '.jpg' ];
+        disp(['writing file ' num2str(slice) '/' num2str(slices)])      
         SliceCounter = SliceCounter + 1;
         % Pad CurrentSlice to square size of longer side
         CurrentSlice = ones(max(size(DICOMFile(:,:,slice)))).*255; % Make square image with larger length of original DICOM file (white square)
-        CurrentSlice(1:size(DICOMFile(:,:,slice),1),1:size(DICOMFile(:,:,slice),2)) = DICOMFile(:,:,slice); % Write DICOM file to top left corner of white square of above line
-        CurrentSlice = uint8(CurrentSlice); % convert to uint8 before saving and displaying
-        % Make Scalebar
-        ScaleBarLength = round(Scalebar/VoxelSize);
-        CurrentSlice(size(DICOMFile,1)-10-(round(ScaleBarLength/10)):size(DICOMFile,1)-10,10:10+ScaleBarLength) = 255; % draw Scalebar of length(ScaleBarLength) in the bottom left corner, with 10 times the length of the height.
-        % imshow(CurrentSlice,[])
-        % title(['writing file ' num2str(slice) '/' num2str(slices)])
-        % pause(0.001)
-
-        imwrite(CurrentSlice,[AcinusPath filesep WriteFileName]);
+        if Disector == 0
+            CurrentSlice(1:size(DICOMFile(:,:,slice),1),1:size(DICOMFile(:,:,slice),2)) = DICOMFile(:,:,slice); % Write slice of DICOM file to top left corner of white square of above line
+            CurrentSlice = uint8(CurrentSlice); % convert to uint8 before saving and displaying
+            % Make Scalebar
+            CurrentSlice(size(DICOMFile,1)-10-(round(ScaleBarLength/10)):size(DICOMFile,1)-10,10:10+ScaleBarLength) = 255; % draw Scalebar of length(ScaleBarLength) in the bottom left corner, with 10 times the length of the height.
+            WriteFileName = [ SampleName '-' AcinusName '_' num2str(SliceCounter) '.jpg' ];
+            imwrite(CurrentSlice,[AcinusPath filesep WriteFileName]);
+        else
+            if slice+1<=size(DICOMFile,4) % only try to write slice if we actually can and if the next slice (for disector) is not out of bounds.
+                % write slice as "_a.jpg"
+                CurrentSlice(1:size(DICOMFile(:,:,slice),1),1:size(DICOMFile(:,:,slice),2)) = DICOMFile(:,:,slice); % Write slice of DICOM file to top left corner of white square of above line
+                CurrentSlice = uint8(CurrentSlice); % convert to uint8 before saving and displaying
+                % Make Scalebar
+                CurrentSlice(size(DICOMFile,1)-10-(round(ScaleBarLength/10)):size(DICOMFile,1)-10,10:10+ScaleBarLength) = 255; % draw Scalebar of length(ScaleBarLength) in the bottom left corner, with 10 times the length of the height.
+                WriteFileName = [ SampleName '-' AcinusName '_' num2str(SliceCounter) '_a.jpg' ];
+                imwrite(CurrentSlice,[AcinusPath filesep WriteFileName]);
+                % write successive slice as "_b.jpg"
+                CurrentSlice(1:size(DICOMFile(:,:,slice),1),1:size(DICOMFile(:,:,slice),2)) = DICOMFile(:,:,slice+1); % Write slice+1 ofDICOM file to top left corner of white square of above line
+                CurrentSlice = uint8(CurrentSlice); % convert to uint8 before saving and displaying
+                % Make Scalebar
+                CurrentSlice(size(DICOMFile,1)-10-(round(ScaleBarLength/10)):size(DICOMFile,1)-10,10:10+ScaleBarLength) = 255; % draw Scalebar of length(ScaleBarLength) in the bottom left corner, with 10 times the length of the height.
+                WriteFileName = [ SampleName '-' AcinusName '_' num2str(SliceCounter) '_b.jpg' ];
+                imwrite(CurrentSlice,[AcinusPath filesep WriteFileName]);
+            end
+        end
     end
-
+    
+    %% Give out some info
     disp(['I have written ' AcinusName ' with Volume ' num2str(Volume) ' to ' AcinusPath filesep SampleName '-' AcinusName '-x.jpg']);
     disp(['I have witten every ' num2str(Iteration) 'th slice!'])
     disp(['The scalebar on the image is ' num2str(Scalebar) ' micrometer long.'])
+	clear DICOMFile
     disp('---')
     pause(0.001)
     close all
+	
 end
 disp('Finished!')
