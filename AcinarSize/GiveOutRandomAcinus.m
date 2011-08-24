@@ -3,7 +3,7 @@
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
 clc;clear all;close all;
-Total = 52;
+Total = 41;
 HowMany = 10;
 
 disp(['Random selection of ' num2str(HowMany) ' acini from a total of ' num2str(Total) ' Acini to look at.']);

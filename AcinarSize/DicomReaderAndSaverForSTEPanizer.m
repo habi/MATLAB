@@ -11,8 +11,13 @@ clear all
 close all
 
 Scalebar = 100; % micrometer
-Disector = 0;
-Iteration = 6;
+Iteration = 10;
+Disector = 1;
+DisectorThickness = 5;
+if DisectorThickness>=Iteration
+    disp(['DisectorThickness (' num2str(DisectorThickness) ') is larger than Slice-Iteration (' num2str(Iteration) '), please redefine in MATLAB-File'])
+    break
+end
 
 SamplePath = uigetdir('d:\SLS\','Select *Directory* of the Sample you want to convert the DICOM-Files from MeVisLab to JPG for STEPanizer');
 
@@ -49,13 +54,13 @@ for i=1:NumberOfDICOMFiles
     if Disector == 0
         AcinusPath = [PathToDICOMFile AcinusName filesep 'voxelsize' num2str(VoxelSize) '-every' num2str(Iteration) 'slice' ];
     elseif Disector == 1
-        AcinusPath = [PathToDICOMFile AcinusName filesep 'voxelsize' num2str(VoxelSize) '-every' num2str(Iteration) 'slice-Disector' ];
+        AcinusPath = [PathToDICOMFile AcinusName filesep 'voxelsize' num2str(VoxelSize) '-every' num2str(Iteration) 'slice-Disector-Thickness-' num2str(sprintf('%1.2f',DisectorThickness * VoxelSize)) ];
     else
         warndlg('Please set Disector to either 0 or 1');
         break        
     end
     [status,message,messageid] = mkdir(AcinusPath);
-    
+        
     %% actually read File
     disp([ 'Reading File ' num2str(i) '/' num2str(NumberOfDICOMFiles) ]);
         
@@ -64,21 +69,21 @@ for i=1:NumberOfDICOMFiles
     
     %% Show slices of the DICOM-File
     slices = size(DICOMFile,4);
-    subplotrows = 4;
-%     figure
-%         for ctr=1:(subplotrows^2)
-%  subplot(subplotrows,subplotrows,ctr)
-%  showslice = round(slices/(subplotrows^2)*ctr);
-%  imshow(DICOMFile(:,:,showslice),[]);
-%  title(['Slice ' num2str(showslice)])
-%         end
-    pause(0.001)
+%     subplotrows = 4;
+%      figure
+%          for ctr=1:(subplotrows^2)
+%             subplot(subplotrows,subplotrows,ctr)
+%             showslice = round(slices/(subplotrows^2)*ctr);
+%             imshow(DICOMFile(:,:,showslice),[]);
+%             title(['Slice ' num2str(showslice)])
+%          end
+%     pause(0.001)
    
     disp('---');
     
     %% Write out Slices to JPG images
     % figure
-    SliceCounter = 1;
+    SliceCounter = 0;
     for slice = 1:Iteration:slices
         disp(['writing file ' num2str(slice) '/' num2str(slices)])      
         SliceCounter = SliceCounter + 1;
@@ -92,7 +97,7 @@ for i=1:NumberOfDICOMFiles
             WriteFileName = [ SampleName '-' AcinusName '_' num2str(SliceCounter) '.jpg' ];
             imwrite(CurrentSlice,[AcinusPath filesep WriteFileName]);
         else
-            if slice+1<=size(DICOMFile,4) % only try to write slice if we actually can and if the next slice (for disector) is not out of bounds.
+            if slice+DisectorThickness<=size(DICOMFile,4) % only try to write slice if we actually can and if the next slice (for disector) is not out of bounds.
                 % write slice as "_a.jpg"
                 CurrentSlice(1:size(DICOMFile(:,:,slice),1),1:size(DICOMFile(:,:,slice),2)) = DICOMFile(:,:,slice); % Write slice of DICOM file to top left corner of white square of above line
                 CurrentSlice = uint8(CurrentSlice); % convert to uint8 before saving and displaying
@@ -101,7 +106,7 @@ for i=1:NumberOfDICOMFiles
                 WriteFileName = [ SampleName '-' AcinusName '_' num2str(SliceCounter) '_a.jpg' ];
                 imwrite(CurrentSlice,[AcinusPath filesep WriteFileName]);
                 % write successive slice as "_b.jpg"
-                CurrentSlice(1:size(DICOMFile(:,:,slice),1),1:size(DICOMFile(:,:,slice),2)) = DICOMFile(:,:,slice+1); % Write slice+1 ofDICOM file to top left corner of white square of above line
+                CurrentSlice(1:size(DICOMFile(:,:,slice),1),1:size(DICOMFile(:,:,slice),2)) = DICOMFile(:,:,slice+DisectorThickness); % Write 'slice+DisectorThickness' of DICOM file to top left corner of white square of above line
                 CurrentSlice = uint8(CurrentSlice); % convert to uint8 before saving and displaying
                 % Make Scalebar
                 CurrentSlice(size(DICOMFile,1)-10-(round(ScaleBarLength/10)):size(DICOMFile,1)-10,10:10+ScaleBarLength) = 255; % draw Scalebar of length(ScaleBarLength) in the bottom left corner, with 10 times the length of the height.
