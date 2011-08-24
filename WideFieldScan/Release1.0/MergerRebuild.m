@@ -268,7 +268,7 @@ Data(1).MergedProjectionFirst = [ Data(1).CorrectedProjectionFirst(:,1:end-Data(
 Data(1).MergedProjectionLast = [ Data(1).CorrectedProjectionLast(:,1:end-Data(1).CutlineLastProjections) ...
     Data(2).CorrectedProjectionLast Data(3).CorrectedProjectionLast(:,Data(2).CutlineLastProjections:end) ];
 
-figure('name','Single and merged projections','position',[150 300 1400 500])
+figure('name','Single and merged projections')%,'position',[150 300 1400 500])
     for i=1:AmountOfSubScans
         subplot(2,6,i)
             imshow(Data(i).CorrectedProjectionFirst,[])
@@ -334,47 +334,70 @@ else
     do = 'cp';
 end
 disp([ what 'ing Files to Merge-Directory' ]);
-for i=2%1:AmountOfSubScans
+for i=1:AmountOfSubScans
     disp(['Working on SubScan s' num2str(i) ]);
-    % ResortBar = waitbar(0,['Resorting ' num2str((Data(i).NumDarks + Data(i).NumFlats + Data(i).NumProjections + Data(i).NumFlats)) ' projections for SubScan s' num2str(i)],'name','Please Wait...');
-    %% Resort Darks and Flats
-    % Pre-Projection
-    disp(['Resorting Pre-Darks and Pre-Flats for SubScan ' num2str(i) ]);
-    ResortBar = waitbar(0,['Resorting ' num2str((Data(i).NumDarks + Data(i).NumFlats)) ' Pre-Darks and -Flats of SubScan s' num2str(i)],'name','Please Wait...');
-    for k=1:Data(i).NumDarks + Data(i).NumFlats
+	% Generate Counter for shuffling files
+	ResortBar = waitbar(0,['Resorting ' num2str((Data(i).NumDarks + Data(i).NumFlats + Data(i).NumProjections + Data(i).NumFlats)) ' files for SubScan s' num2str(i)],'name','Please Wait...'); 
+	for k=1:Data(i).NumDarks+Data(i).NumFlats+Data(i).NumProjections+Data(i).NumFlats
+        if k <= Data(i).NumDarks+Data(i).NumFlats % Pre-Projection
+            Counter = k;
+        elseif ( k>Data(i).NumDarks+Data(i).NumFlats && k<=Data(i).NumDarks+Data(i).NumFlats+Data(i).NumProjections ) % Projections
+            Counter = Data(i).NumDarks + Data(i).NumFlats + ( ( k - Data(i).NumDarks- Data(i).NumFlats ) * Interpolation(i) ) ;
+        else
+            Counter = k + ((Interpolation(i)-1)*Data(i).NumProjections); % Post-Projections
+        end
+        % SubScan(i).Numbers(k) = (AmountOfSubScans*Counter)-(AmountOfSubScans-i);
         OriginalFile = [Data(i).SampleFolder filesep 'tif' filesep Data(i).SubScanName num2str(sprintf('%04d',k)) '.tif' ];
-        DestinationFile = [ OutputDirectory filesep OutPutTifDirName filesep MergedScanName num2str(sprintf(Decimal,(AmountOfSubScans*k)-(AmountOfSubScans-i))) '.tif' ];
+        DestinationFile = [ OutputDirectory filesep OutPutTifDirName filesep MergedScanName num2str(sprintf(Decimal,(AmountOfSubScans*Counter)-(AmountOfSubScans-i))) '.tif' ];
         ResortCommand = [ do ' ' OriginalFile ' ' DestinationFile ];
-        waitbar(k/(Data(i).NumDarks + Data(i).NumFlats));
-        disp(ResortCommand);
+        waitbar(k/(Data(i).NumDarks + Data(i).NumFlats + Data(i).NumProjections + Data(i).NumFlats));
+        % disp(ResortCommand);
         [status,result] = system(ResortCommand);
-    end % k=1:Darks+Flats
+    end
     close(ResortBar)
-    % Post-Projection
-    disp(['Resorting Post-Flats for SubScan ' num2str(i) ])
-    ResortBar = waitbar(0,['Resorting ' num2str(Data(i).NumFlats) ' Post-Flats of SubScan s' num2str(i)],'name','Please Wait...');
-    for k=Data(i).ProjectionNumberLast:Data(i).ProjectionNumberLast + Data(i).NumFlats
-        OriginalFile = [Data(i).SampleFolder filesep 'tif' filesep Data(i).SubScanName num2str(sprintf('%04d',k)) '.tif' ];
-        DestinationFile = [ OutputDirectory filesep OutPutTifDirName filesep MergedScanName num2str(sprintf(Decimal,(AmountOfSubScans*k)-(AmountOfSubScans-i))) '.tif' ];
-        ResortCommand = [ do ' ' OriginalFile ' ' DestinationFile ];
-        waitbar(k/(Data(i).NumFlats));
-        disp(ResortCommand);
-        [status,result] = system(ResortCommand);
-    end % k=End of Projections to End of Files
-    close(ResortBar)
-    %% Resort Projections
-    disp(['Resortign Projections for SubScan ' num2str(i) ]);
-        ResortBar = waitbar(0,['Resorting ' num2str(Data(i).ProjectionNumberLast) ' Projections of SubScan s' num2str(i)],'name','Please Wait...');
-    for k=Data(i).ProjectionNumberFirst:Data(i).ProjectionNumberLast
-        OriginalFile = [Data(i).SampleFolder filesep 'tif' filesep Data(i).SubScanName num2str(sprintf('%04d',k)) '.tif' ];
-        DestinationFile = [ OutputDirectory filesep OutPutTifDirName filesep MergedScanName num2str(sprintf(Decimal,((AmountOfSubScans*k)-(AmountOfSubScans-i))*Interpolation(i))) '.tif' ]; % NUmber outputfile according to Interpolation.
-        ResortCommand = [ do ' ' OriginalFile ' ' DestinationFile ];
-        waitbar(k/(Data(i).ProjectionNumberLast));
-        disp(ResortCommand);
-        [status,result] = system(ResortCommand);        
-    end % k=Start:End of Projections
-    close(ResortBar)
-end % i=1:AmountOfSubScans
+end
+
+% for i=2 % 1:AmountOfSubScans
+%     disp(['Working on SubScan s' num2str(i) ]);
+%     % ResortBar = waitbar(0,['Resorting ' num2str((Data(i).NumDarks + Data(i).NumFlats + Data(i).NumProjections + Data(i).NumFlats)) ' projections for SubScan s' num2str(i)],'name','Please Wait...');
+%     %% Resort Darks and Flats
+%     % Pre-Projection
+% %     disp(['Resorting Pre-Darks and Pre-Flats for SubScan ' num2str(i) ]);
+% %     ResortBar = waitbar(0,['Resorting ' num2str((Data(i).NumDarks + Data(i).NumFlats)) ' Pre-Darks and -Flats of SubScan s' num2str(i)],'name','Please Wait...');
+% %     for k=1:Data(i).NumDarks + Data(i).NumFlats
+% %         OriginalFile = [Data(i).SampleFolder filesep 'tif' filesep Data(i).SubScanName num2str(sprintf('%04d',k)) '.tif' ];
+% %         DestinationFile = [ OutputDirectory filesep OutPutTifDirName filesep MergedScanName num2str(sprintf(Decimal,(AmountOfSubScans*k)-(AmountOfSubScans-i))) '.tif' ];
+% %         ResortCommand = [ do ' ' OriginalFile ' ' DestinationFile ];
+% %         waitbar(k/(Data(i).NumDarks + Data(i).NumFlats));
+% %         % disp(ResortCommand);
+% %         [status,result] = system(ResortCommand);
+% %     end % k=1:Darks+Flats
+% %     close(ResortBar)
+%     % Post-Projection
+% %     disp(['Resorting Post-Flats for SubScan ' num2str(i) ])
+% %     ResortBar = waitbar(0,['Resorting ' num2str(Data(i).NumFlats) ' Post-Flats of SubScan s' num2str(i)],'name','Please Wait...');
+% %     for k=Data(i).ProjectionNumberLast:Data(i).ProjectionNumberLast + Data(i).NumFlats
+% %         OriginalFile = [Data(i).SampleFolder filesep 'tif' filesep Data(i).SubScanName num2str(sprintf('%04d',k)) '.tif' ];
+% %         DestinationFile = [ OutputDirectory filesep OutPutTifDirName filesep MergedScanName num2str(sprintf(Decimal,(AmountOfSubScans*k)-(AmountOfSubScans-i))) '.tif' ];
+% %         ResortCommand = [ do ' ' OriginalFile ' ' DestinationFile ];
+% %         waitbar(k/(Data(i).NumFlats));
+% %         % disp(ResortCommand);
+% %         [status,result] = system(ResortCommand);
+% %     end % k=End of Projections to End of Files
+% %     close(ResortBar)
+%     %% Resort Projections
+%     disp(['Resortign Projections for SubScan ' num2str(i) ]);
+%         ResortBar = waitbar(0,['Resorting ' num2str(Data(i).ProjectionNumberLast) ' Projections of SubScan s' num2str(i)],'name','Please Wait...');
+%     for k=Data(i).ProjectionNumberFirst:Data(i).ProjectionNumberLast
+%         OriginalFile = [Data(i).SampleFolder filesep 'tif' filesep Data(i).SubScanName num2str(sprintf('%04d',k)) '.tif' ];
+%         DestinationFile = [ OutputDirectory filesep OutPutTifDirName filesep MergedScanName num2str(sprintf(Decimal,((AmountOfSubScans*k)-(AmountOfSubScans-i)))) '.tif' ]; % NUmber outputfile according to Interpolation.
+%         ResortCommand = [ do ' ' OriginalFile ' ' DestinationFile ];
+%         waitbar(k/(Data(i).ProjectionNumberLast));
+%         % disp(ResortCommand);
+%         [status,result] = system(ResortCommand);        
+%     end % k=Start:End of Projections
+%     close(ResortBar)
+% end % i=1:AmountOfSubScans
 disp('Done with Resorting');
 disp('---');
 
