@@ -19,8 +19,29 @@ B=B(:,4:5);
 C=C(:,4:5);
 D=D(:,4:5);
 E=E(:,4:5);
+
+B =B(isfinite(B(:,1)),:); % from http://is.gd/ckddR0
+C =C(isfinite(C(:,1)),:); % from http://is.gd/ckddR0
+D =D(isfinite(D(:,1)),:); % from http://is.gd/ckddR0
+E =E(isfinite(E(:,1)),:); % from http://is.gd/ckddR0
+
 Concatenate = [B',C',D',E']';
-size(Concatenate)
+
+figure
+    plot(1:size(B,1),B(:,2),'rs')
+    hold on
+    axis([ 0 size(Concatenate,1) 0 max((Concatenate(:,2)))])
+    from = size(B,1)
+    plot(1+from:from+size(C,1),C(:,2),'gs')
+    from = from + size(C,1)
+    plot(1+from:from+size(D,1),D(:,2),'bs')
+    from = from + size(D,1)
+    plot(1+from:from+size(E,1),E(:,2),'ks')
+    legend('B','C','D','E')
+    title('All counted Acini')
+
+    matlab2tikz('MeVisLabVsSTEPanizerStacked.tex')
+
 Concatenate =Concatenate(isfinite(Concatenate(:,1)),:); % from http://is.gd/ckddR0
 
 %% Present it to the User
@@ -30,7 +51,7 @@ disp(['The mean with all values is ' num2str(Mean(2)) '%.'])
 disp(['The standard deviation with all values is ' num2str(Sigma(2)) '%.'])
 
 %% Plot all values and export to TikZ
-figure(1)
+figure
     plot(1:size(Concatenate,1),Concatenate(:,1),'-bs')
     hold on
     plot(1:size(Concatenate,1),Concatenate(:,2),'-rs')
@@ -38,9 +59,6 @@ figure(1)
     title(['All Values: mean ' num2str(Mean(2)) '%'])
 
 %% Remove all values above a certain Threshold
-disp('---')
-disp('---')
-disp('---')
 disp('---')
 Threshold=130;
 Remove=find(Concatenate(:,2)>Threshold); % Find all values bigger than Threshold%
@@ -50,8 +68,6 @@ end
 disp('---')
 disp(['In total we counted ' num2str(size(Concatenate,1)) ' acini and removed ' num2str(size(Remove,1)) ' of them.'])
 disp(['We thus have ' num2str(size(Concatenate,1)-size(Remove,1)) ' in our measurement.'])
-disp('---')
-disp('---')
 disp('---')
 for i = Remove
     Concatenate(i,:)=NaN; % Remove these Values
@@ -64,10 +80,10 @@ Sigma = std(Concatenate);
 disp(['The mean without values (' num2str(Remove') ') is ' num2str(Mean(2)) '%.'])
 disp(['The standard deviation with all values (' num2str(Remove') ') is ' num2str(Sigma(2)) '%.'])
 
-figure(2)
+figure
 	plot(1:size(Concatenate,1),Concatenate(:,1),'-bs')
     hold on
     plot(1:size(Concatenate,1),Concatenate(:,2),'-rs')
-    matlab2tikz('MeVisLabVsSTEPanizer.tex')    
+    matlab2tikz('MeVisLabVsSTEPanizerCropped.tex')    
     title(['Without Values ' num2str(Remove') ', mean ' num2str(Mean(2)) '%'])
     

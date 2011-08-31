@@ -13,7 +13,7 @@ DataDir = 'Data10';
 Drive = 'R'; % Setup for Windows
 OutPutTifDirName = 'tif';
 ReadLinesOfLogFile = 33; % Lines to read for the Logfile, so we don't read in everything
-CutlineValue = 44%[];% Set to something non-empty if youy do not want to let MATLAB to calculate the cultline
+CutlineValue = [];% Set to something non-empty if youy do not want to let MATLAB to calculate the cultline
 
 %% Ask the User what SubScans we should merge
 h=helpdlg('Select the logfile of the FIRST SubScan I should merge. Look in the "log" folder of the BeamTime!',...
@@ -23,7 +23,7 @@ pause(0.01);
 if isunix==0
     StartPath = [ Drive ':' filesep 'SLS' filesep BeamTime filesep ];
 else
-    StartPath = [ filesep 'sls' filesep 'X02DA' filesep 'data' filesep 'e11126' filesep DataDir filesep BeamTime ];  
+    StartPath = [ filesep 'sls' filesep 'X02DA' filesep 'data' filesep 'e11126' filesep DataDir filesep BeamTime filesep 'log' ];  
 end
 disp(['Opening ' StartPath ' to look for Logfiles'])
 [ LogFile, LogFilePath] = uigetfile({'*.log','LogFiles (*.log)'},...
@@ -343,10 +343,12 @@ for i=1:AmountOfSubScans
             Counter = k;
         elseif ( k>Data(i).NumDarks+Data(i).NumFlats && k<=Data(i).NumDarks+Data(i).NumFlats+Data(i).NumProjections ) % Projections
             Counter = Data(i).NumDarks + Data(i).NumFlats + ( ( k - Data(i).NumDarks- Data(i).NumFlats ) * Interpolation(i) ) ;
+            if i==2
+                Counter = Counter -1;
+            end
         else
             Counter = k + ((Interpolation(i)-1)*Data(i).NumProjections); % Post-Projections
         end
-        % SubScan(i).Numbers(k) = (AmountOfSubScans*Counter)-(AmountOfSubScans-i);
         OriginalFile = [Data(i).SampleFolder filesep 'tif' filesep Data(i).SubScanName num2str(sprintf('%04d',k)) '.tif' ];
         DestinationFile = [ OutputDirectory filesep OutPutTifDirName filesep MergedScanName num2str(sprintf(Decimal,(AmountOfSubScans*Counter)-(AmountOfSubScans-i))) '.tif' ];
         ResortCommand = [ do ' ' OriginalFile ' ' DestinationFile ];
