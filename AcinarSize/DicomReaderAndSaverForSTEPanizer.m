@@ -10,12 +10,18 @@ clc
 clear all
 close all
 
+%% 60A - 
+%% 60B - 2010c
+%% 60C - 2010a
+%% 60D - 2009f
+%% 60E - 2009f
+
 Scalebar = 100; % micrometer
-Iteration = 10;
-Disector = 1;
-DisectorThickness = 5;
-if DisectorThickness>=Iteration
-    disp(['DisectorThickness (' num2str(DisectorThickness) ') is larger than Slice-Iteration (' num2str(Iteration) '), please redefine in MATLAB-File'])
+Disector = 1; % 1=Do export for Disector, 0=Just export slices with the "SliceDistance".
+DisectorThickness = 3; % IN SLICES!
+SliceDistance = 10;
+if DisectorThickness>=SliceDistance
+    disp(['DisectorThickness (' num2str(DisectorThickness) ') is equal or larger than Slicedistance (' num2str(SliceDistance) '), please redefine in MATLAB-File'])
     break
 end
 
@@ -52,9 +58,12 @@ for i=1:NumberOfDICOMFiles
     AcinusNumber = (sprintf('%02d',str2num(AcinusNumber))); % format string to number and pad with zero if necessary
     AcinusName = [ 'acinus' AcinusNumber ];
     if Disector == 0
-        AcinusPath = [PathToDICOMFile AcinusName filesep 'voxelsize' num2str(VoxelSize) '-every' num2str(Iteration) 'slice' ];
+        AcinusPath = [PathToDICOMFile AcinusName filesep 'voxelsize' ...
+            num2str(VoxelSize) '-every' num2str(SliceDistance) 'slice' ];
     elseif Disector == 1
-        AcinusPath = [PathToDICOMFile AcinusName filesep 'voxelsize' num2str(VoxelSize) '-every' num2str(Iteration) 'slice-Disector-Thickness-' num2str(sprintf('%1.2f',DisectorThickness * VoxelSize)) ];
+        AcinusPath = [PathToDICOMFile AcinusName filesep 'voxelsize' num2str(VoxelSize) ...
+            '-every' num2str(SliceDistance) 'slice-DisectorThickness-' num2str(sprintf('%1.2f',DisectorThickness * VoxelSize)) ...
+            'um-or' num2str(DisectorThickness) 'slices' ];
     else
         warndlg('Please set Disector to either 0 or 1');
         break        
@@ -84,7 +93,7 @@ for i=1:NumberOfDICOMFiles
     %% Write out Slices to JPG images
     % figure
     SliceCounter = 0;
-    for slice = 1:Iteration:slices
+    for slice = 1:SliceDistance:slices
         disp(['writing file ' num2str(slice) '/' num2str(slices)])      
         SliceCounter = SliceCounter + 1;
         % Pad CurrentSlice to square size of longer side
@@ -118,7 +127,7 @@ for i=1:NumberOfDICOMFiles
     
     %% Give out some info
     disp(['I have written ' AcinusName ' with Volume ' num2str(Volume) ' to ' AcinusPath filesep SampleName '-' AcinusName '-x.jpg']);
-    disp(['I have witten every ' num2str(Iteration) 'th slice!'])
+    disp(['I have witten every ' num2str(SliceDistance) 'th slice!'])
     disp(['The scalebar on the image is ' num2str(Scalebar) ' micrometer long.'])
 	clear DICOMFile
     disp('---')

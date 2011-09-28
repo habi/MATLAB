@@ -31,18 +31,21 @@ figure
     plot(1:size(B,1),B(:,2),'rs')
     hold on
     axis([ 0 size(Concatenate,1) 0 max((Concatenate(:,2)))])
-    from = size(B,1)
+    from = size(B,1);
     plot(1+from:from+size(C,1),C(:,2),'gs')
-    from = from + size(C,1)
+    from = from + size(C,1);
     plot(1+from:from+size(D,1),D(:,2),'bs')
-    from = from + size(D,1)
+    from = from + size(D,1);
     plot(1+from:from+size(E,1),E(:,2),'ks')
-    legend('B','C','D','E')
+    legend(['B (' num2str(size(B,1)) ')'],...
+        ['C (' num2str(size(C,1)) ')'],...
+        ['D (' num2str(size(D,1)) ')'],...
+        ['E (' num2str(size(E,1)) ')'],...
+        'Location','SouthEast')
     title('All counted Acini')
-
     matlab2tikz('MeVisLabVsSTEPanizerStacked.tex')
 
-Concatenate =Concatenate(isfinite(Concatenate(:,1)),:); % from http://is.gd/ckddR0
+Concatenate = Concatenate(isfinite(Concatenate(:,1)),:); % from http://is.gd/ckddR0
 
 %% Present it to the User
 Mean = mean(Concatenate);
@@ -55,6 +58,7 @@ figure
     plot(1:size(Concatenate,1),Concatenate(:,1),'-bs')
     hold on
     plot(1:size(Concatenate,1),Concatenate(:,2),'-rs')
+    axis([ 0 size(Concatenate,1) 0 1.1*max((Concatenate(:,2)))])
     matlab2tikz('MeVisLabVsSTEPanizerAllValues.tex')
     title(['All Values: mean ' num2str(Mean(2)) '%'])
 
@@ -63,7 +67,7 @@ disp('---')
 Threshold=130;
 Remove=find(Concatenate(:,2)>Threshold); % Find all values bigger than Threshold%
 for i=1:size(Remove)
-    disp(['Removing (' num2str(Remove(i)) ',' num2str(Concatenate(Remove(i),2)) '), because it is bigger than ' num2str(Threshold)])
+    disp(['Removing (' num2str(Remove(i)) ',' num2str(Concatenate(Remove(i),2)) '), because it is bigger than threshold ' num2str(Threshold)])
 end
 disp('---')
 disp(['In total we counted ' num2str(size(Concatenate,1)) ' acini and removed ' num2str(size(Remove,1)) ' of them.'])
@@ -77,13 +81,14 @@ Concatenate = Concatenate(isfinite(Concatenate(:,1)),:); % from http://is.gd/ckd
 %% Calculate Mean and present again
 Mean = mean(Concatenate);
 Sigma = std(Concatenate);
-disp(['The mean without values (' num2str(Remove') ') is ' num2str(Mean(2)) '%.'])
-disp(['The standard deviation with all values (' num2str(Remove') ') is ' num2str(Sigma(2)) '%.'])
+disp(['The mean without values above threshold (' num2str(Remove') ') is ' num2str(Mean(2)) '%.'])
+disp(['The standard deviation without the values above is ' num2str(Sigma(2)) '%.'])
 
 figure
 	plot(1:size(Concatenate,1),Concatenate(:,1),'-bs')
     hold on
     plot(1:size(Concatenate,1),Concatenate(:,2),'-rs')
+    axis([ 0 size(Concatenate,1) 0 1.1*max((Concatenate(:,2)))])
     matlab2tikz('MeVisLabVsSTEPanizerCropped.tex')    
     title(['Without Values ' num2str(Remove') ', mean ' num2str(Mean(2)) '%'])
     
