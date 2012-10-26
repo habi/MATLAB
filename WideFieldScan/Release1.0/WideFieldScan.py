@@ -1,5 +1,7 @@
 #! /usr/bin/env python
 
+testing = False
+
 import sys
 import os.path
 import string
@@ -20,42 +22,39 @@ if len(sys.argv) - path_arg_at != 1:
 else:
   filename=sys.argv[1]
 
+#---------------------------------------------------------------------------
 #---------------------------------
-print "hey ho, let's go!"
-print
-
-##---------------------------------
-## Make sure we are running at least python level 2.
-## CaChannel seems to give troubles otherwise!
+#----------------------------------------------
+# Make sure we are running at least python level 2.
+# CaChannel seems to give troubles otherwise!
 if sys.version[0:1] == "1":
-    python2 = commands.getoutput ("type -p python2")
-    if python2 == "":
-        print "\n\aThe default python version is", sys.version
-        print     "and this script needs python level 2 or higher."
-        print     " Python level 2 cannot be found."
-        os.system ("xkbbell")
-        os.system ("xmessage -nearmouse -timeout 30 -buttons "" Python level 2 cannot be found")
-        sys.exit (1)
-    #endif
-    sys.argv.insert (0, python2)
-    os.execv (python2, sys.argv)
-#endif
-if sys.version[0:1] == "1":
-    print "\n\aThe loading of a higher level of python seems to have failed!"
+  python2 = commands.getoutput ("type -p python2")
+  if python2 == "":
+    print "\n\aThe default python version is", sys.version
+    print     "and this script needs python level 2 or higher."
+    print     " Python level 2 cannot be found."
+    os.system ("xkbbell")
+    os.system ("xmessage -nearmouse -timeout 30 -buttons '' Python level 2 cannot be found")
     sys.exit (1)
+  #endif
+  sys.argv.insert (0, python2)
+  os.execv (python2, sys.argv)
 #endif
-
+if sys.version[0:1] == "1":
+  print "\n\aThe loading of a higher level of python seems to have failed!"
+  sys.exit (1)
+#endif
 #---------------------------------------------------------------------------
 try:
   from CaChannel import *
 except:
-  try:
-    sys.path.insert (0, os.path.expandvars ("$SLSBASE/sls/lib/python22/CaChannel"))
-    from CaChannel import *
-  except:
-    os.system ("xkbbell")
-    os.system ("xmessage -nearmouse -timeout 30 -buttons "" CaChannel module cannot be found")
-    sys.exit (1)
+  #try:
+  #  sys.path.insert (0, os.path.expandvars ("$SLSBASE/sls/lib/python22/CaChannel"))
+  #  from CaChannel import *
+  #except:
+  os.system ("xkbbell")
+  os.system ("xmessage -nearmouse -timeout 30 -buttons '' CaChannel module cannot be found")
+  sys.exit (1)
   #endtry
 #endtry
 
@@ -77,10 +76,10 @@ class EpicsChannel:
 
     def getVal(self):
         try:
-            	val=self.chan.getw()
+                val=self.chan.getw()
         except:
-          	self.connected=0
-            	val=""
+                self.connected=0
+                val=""
         return val
 
     def getValCHK(self, connected):
@@ -109,7 +108,11 @@ class EpicsChannel:
             self.connected=1
         except CaChannelException, status:
             print ca.message(status)
-            self.connected=0
+            self.connected=0        
+
+#---------------------------------
+print "hey ho, let's go!"
+print
 
 #-----------------------------------------------------------------
 #
@@ -136,12 +139,10 @@ parameterfile = open(filename)
 counter = 1
 
 print "reading SampleName from Panel"
-## turn on for Scanning
-SampleName=EPICS_FileName.getValCHK(EPICS_FileName.connected)
-## turn on for Scanning
-## turn on for testing
-#SampleName = "FAKENAME-R10C60_123456789"
-## turn on for testing
+if testing:
+  SampleName = "SampleNameForTesting"
+else:
+  SampleName=EPICS_FileName.getValCHK(EPICS_FileName.connected)
 print "The base-filename for all the scans is: `" + str(SampleName) + "'."
 
 while 1:
@@ -191,7 +192,7 @@ while 1:
 
   print "Start- and Stop-Angles are " + str(StartAngle) + " and " + str(StopAngle)
   EPICS_StartAngle.putValCHK(StartAngle,EPICS_StartAngle.connected)
-  EPICS_StopAngle.putValCHK(StopAngle,EPICS_StopAngle.connected)		
+  EPICS_StopAngle.putValCHK(StopAngle,EPICS_StopAngle.connected)    
 
   print "I've setup the Parameters for SubScan Nr. " + str(counter) + " on the EPICS-Panel."
   print 
@@ -206,34 +207,30 @@ while 1:
   EPICS_FileName.putValCHK(SubScanName,EPICS_FileName.connected)
   print "I've set the FileName for the current SubScan on the EPICS-Panel"
   
-  # turn on for scanning
-  print "I'm waiting 10 sec to make sure EPICS is ready and registered my commands..."
-  time.sleep(10)
-  print "And press the 'GO'-trigger now"
-  print "Acquiring `" + SubScanName + "`..."
-  EPICS_Trigger.putValCHK(1,EPICS_Trigger.connected)
-  print "I'm waiting a bit for the trigger to be registered (to be on the safe side...)"
-  time.sleep(5)
-  scanstatus = EPICS_Trigger.getValCHK(EPICS_Trigger.connected)
-  print "I'm now scanning the Sample, you can check the progress in the cameraserver window or just wait..."
-  ## turn on for scanning
-
-  ### turn on for testing
-#  scanstatus = 1
-#  testcounter = 10
-  ### turn on for testing
+  if testing:
+    scanstatus = 1
+    testcounter = 10
+  else:
+    print "I'm waiting 10 sec to make sure EPICS is ready and registered my commands..."
+    time.sleep(10)
+    print "And press the 'GO'-trigger now"
+    print "Acquiring `" + SubScanName + "`..."
+    EPICS_Trigger.putValCHK(1,EPICS_Trigger.connected)
+    print "I'm waiting a bit for the trigger to be registered (to be on the safe side...)"
+    time.sleep(5)
+    scanstatus = EPICS_Trigger.getValCHK(EPICS_Trigger.connected)
+    print "I'm now scanning the Sample, you can check the progress in the cameraserver window or just wait..."
+  
   while scanstatus == 1:
     time.sleep(1)
-    ### turn on for scanning
-    scanstatus = EPICS_Trigger.getValCHK(EPICS_Trigger.connected)
-    ### turn on for scanning
+    if testing:
+      print
+      print "I would actually perform a scan here, but we're only testing..."
+      print
+      scanstatus = 0
+    else:
+      scanstatus = EPICS_Trigger.getValCHK(EPICS_Trigger.connected)
 
-    ### turn on for testing
-    #print "performing fake test-scan scan nr. " + str(11-testcounter)
-    #testcounter = testcounter - 1
-    #if testcounter < 1:
-    #	scanstatus = 0
-    ### turn on for testing
   print "I`m done with subscan " + SubScanName + "!"
   counter = counter + 1
   print "------------------------------------------------------------------"

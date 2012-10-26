@@ -22,10 +22,10 @@ def catchMeIfYouCan(sig,frame) :
   signal(sig,signal.SIG_DFL)
 
 #---------------------------------------------------------------------------
-                          #---------------------------------
-                          #----------------------------------------------
-                          # Make sure we are running at least python level 2.
-                          # CaChannel seems to give troubles otherwise!
+#---------------------------------
+#----------------------------------------------
+# Make sure we are running at least python level 2.
+# CaChannel seems to give troubles otherwise!
 if sys.version[0:1] == "1":
   python2 = commands.getoutput ("type -p python2")
   if python2 == "":
@@ -119,7 +119,7 @@ def show_help():
         print "   $3  = number of lines in projections. "
         print "   $4  = magnification. "
         print "   $5  = binning. "
-	print "   $6  = ParameterFile for Widefield Scan. "
+        print "   $6  = ParameterFile for Widefield Scan. "
         print ""
         print "EXAMPLE"
         print "   stacked_scan.py -4200 -8000 300 10 2"
@@ -212,6 +212,8 @@ if path_arg_at>0:
 		corr_fact = 1.02	
         elif magnify == 20 :
 		corr_fact = 1.02
+	else:
+		corr_fact = 1.02 # David added this to account for arbitrary magnifications
 		
 	magnify = magnify*corr_fact
 	print "Corrected magnification " + str(magnify) 
@@ -249,7 +251,10 @@ else:
 	show_help()
 	sys.exit(1)
 
-pixelsize = 7.4 / magnify * binning
+# pixelsize = 7.4 / magnify * binning
+pixelsize = 6.5 / magnify * binning # Edgecamera
+print 'Pixelsize is',pixelsize,'um'
+
 blocksize = float(numlines) * pixelsize
 if  endpos < startpos :
 	# swap end and startpos! stacked scans always start with top block first.
@@ -305,7 +310,6 @@ print "size of the Y-block ..............: " + str(blocksize) + " microns"
 print "Total number of lines to scan ....: " + str(numlines * nblocks )
 print "Total number of lines requested ..: " + str(numlines * nblocks - unusedlines )
 print 
-
 
 stoppedbysignal=False
 childpid=0
@@ -405,7 +409,7 @@ while ( i<nblocks ) and not stoppedbysignal :
 		moved2 = chYLINM2.getValCHK(chYLINM2.connected)
 
         # Wait 10 seconds for motor moving...Hardcoded!!!
-        # time.sleep(10)
+        time.sleep(10)
         
         # Check beamline status
         CurrentStatus=chRingCurrent.getValCHK(chRingCurrent.connected)
@@ -433,8 +437,7 @@ while ( i<nblocks ) and not stoppedbysignal :
 	
         # Start tomoscan
         print "Acquiring tomo data for block " + str(i+1) + "....."
-	childpid=os.spawnv(os.P_NOWAIT,'./widefieldscan_final.py',['widefieldscan_final.py',parfile])
-	
+	childpid=os.spawnv(os.P_NOWAIT,'./WideFieldScan.py',['WideFieldScan.py',parfile])	
         
         waitflag = 1
         

@@ -1,21 +1,20 @@
-debug = 1
-
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-% Rebuild of the Merging functions 
-% Hopefully more clever implementation with parsing of logfiles and
-% using most of the available stuff 
-% Initial Version: 3.6.2010
+% Aims to find the cutline for an arbitrary projection
+% Initial Version: 13.4.20123.6.2010
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 clc;clear all;close all;tic;
 WasDir = pwd;
 
 %% Setup
-BeamTime = 'disk4';
+BeamTime = '2011a';
 DataDir = 'Data10';
 Drive = 'R'; % Setup for Windows
 OutPutTifDirName = 'tif';
-ReadLinesOfLogFile = 50; % Lines to read for the Logfile, so we don't read in everything
-CutlineValue = 83;% Set to something non-empty if youy do not want to let MATLAB to calculate the cultline
+ReadLinesOfLogFile = 33; % Lines to read for the Logfile, so we don't read in everything
+CutlineValue = [];% Set to something non-empty if you do not want to let MATLAB to calculate the cultline
+
+%% Ask the User which Projection we should check
+ProjectionToCheck=input('Please Input the ProjectionMuber I should check the cutline on: ');
 
 %% Ask the User what SubScans we should merge
 h=helpdlg('Select the logfile of the FIRST SubScan I should merge. Look in the "log" folder of the BeamTime!',...
@@ -90,20 +89,21 @@ for i=1:AmountOfSubScans
     Data(i).RingCurrent = str2double(strtrim(TMP{4}{2}));
     Data(i).BeamEnergy = str2double(strtrim(TMP{5}{2}));
     Data(i).Mono = strtrim(TMP{6}{2});
-    Data(i).Objective = str2double(strtrim(TMP{13}{2}));
-    Data(i).Scintillator = strtrim(TMP{14}{2});
-    Data(i).ExposureTime = str2double(strtrim(TMP{15}{2}));
-    Data(i).SampleFolder = strtrim(TMP{24}{2});
-    Data(i).NumProjections = str2double(strtrim(TMP{26}{2}));
-    Data(i).NumDarks = str2double(strtrim(TMP{27}{2}));
-    Data(i).NumFlats = str2double(strtrim(TMP{28}{2}));     
-    Data(i).InterFlats = str2double(strtrim(TMP{29}{2}));
-    Data(i).FlatFreq = str2double(strtrim(TMP{30}{2}));
-    Data(i).RotYmin = str2double(strtrim(TMP{31}{2}));
-    Data(i).RotYmax = str2double(strtrim(TMP{32}{2}));
-    Data(i).AngularStep = str2double(strtrim(TMP{33}{2}));
-    Data(i).SampleIn = str2double(strtrim(TMP{34}{2}));
-    Data(i).SampleOut = str2double(strtrim(TMP{35}{2}));    
+    Data(i).Objective = str2double(strtrim(TMP{8}{2}));
+    Data(i).Scintillator = strtrim(TMP{9}{2});
+    Data(i).ExposureTime = str2double(strtrim(TMP{10}{2}));
+    Data(i).SampleFolder = strtrim(TMP{12}{2});
+    Data(i).NumProjections = str2double(strtrim(TMP{14}{2}));
+    Data(i).NumDarks = str2double(strtrim(TMP{15}{2}));
+    Data(i).NumFlats = str2double(strtrim(TMP{16}{2}));     
+    Data(i).InterFlats = str2double(strtrim(TMP{17}{2}));
+    Data(i).InnerScan = str2double(strtrim(TMP{18}{2}));
+    Data(i).FlatFreq = str2double(strtrim(TMP{19}{2}));
+    Data(i).RotYmin = str2double(strtrim(TMP{20}{2}));
+    Data(i).RotYmax = str2double(strtrim(TMP{21}{2}));
+    Data(i).AngularStep = str2double(strtrim(TMP{22}{2}));
+    Data(i).SampleIn = str2double(strtrim(TMP{23}{2}));
+    Data(i).SampleOut = str2double(strtrim(TMP{24}{2}));    
 end
 disp('---');
 
@@ -224,34 +224,31 @@ disp('---');
 
 %% Calculating Cutlines
 disp('Calculating Cutlines, this will take some time...');
-if isempty(Data(1).CutlineFirstProjections)
-    for i=1:AmountOfSubScans
-        % Load First Projection
-        Data(i).ProjectionNumberFirst = Data(1).NumDarks + Data(1).NumFlats + 1;
-        disp([ 'Reading Projection ' num2str(Data(i).ProjectionNumberFirst) ...
-            ' of ' Data(i).SubScanName  ]);
-        Data(i).ProjectionFirst = imread([Data(i).SampleFolder filesep 'tif' ...
-            filesep Data(i).SubScanName num2str(sprintf('%04d',Data(i).ProjectionNumberFirst)) ...
-            '.tif' ]);
-        Data(i).ProjectionFirst = double(Data(i).ProjectionFirst);
-        Data(i).CorrectedProjectionFirst = log(Data(i).AverageFlat - Data(i).AverageDark) - log(Data(i).ProjectionFirst - Data(i).AverageDark);  
-        % Load Last Projection
-        Data(i).ProjectionNumberLast = Data(1).NumDarks + Data(1).NumFlats + Data(i).NumProjections;
-        disp([ 'Reading Projection ' num2str(Data(i).ProjectionNumberLast) ' of ' Data(i).SubScanName  ]);
-        Data(i).ProjectionLast = imread([Data(i).SampleFolder filesep 'tif' ...
-            filesep Data(i).SubScanName num2str(sprintf('%04d',Data(i).ProjectionNumberLast)) '.tif' ]);
-        Data(i).ProjectionLast = double(Data(i).ProjectionLast);
-        Data(i).CorrectedProjectionLast = log(Data(i).AverageFlat - Data(i).AverageDark) - log(Data(i).ProjectionLast - Data(i).AverageDark);
-    end
+for i=1:AmountOfSubScans
+    % Load First Projection
+    Data(i).ProjectionNumberFirst = ProjectionToCheck;
+    disp([ 'Reading Projection ' num2str(Data(i).ProjectionNumberFirst) ...
+        ' of ' Data(i).SubScanName  ]);
+    Data(i).ProjectionFirst = imread([Data(i).SampleFolder filesep 'tif' ...
+        filesep Data(i).SubScanName num2str(sprintf('%04d',Data(i).ProjectionNumberFirst)) ...
+        '.tif' ]);
+    Data(i).ProjectionFirst = double(Data(i).ProjectionFirst);
+    Data(i).CorrectedProjectionFirst = log(Data(i).AverageFlat - Data(i).AverageDark) - log(Data(i).ProjectionFirst - Data(i).AverageDark);  
+end
 
+figure
+for i=1:AmountOfSubScans
+	subplot(1,3,i)
+	imshow(Data(i).CorrectedProjectionFirst,[])
+    title(ProjectionToCheck)
+end
+
+if isempty(Data(1).CutlineFirstProjections)
     disp('Calculating Cutlines, this will take some time...');
     for i=1:AmountOfSubScans-1
         disp(['Calculating cutline between SubScans s' num2str(i) ' and s' ...
             num2str(i+1) ' for projection ' num2str(Data(i).ProjectionNumberFirst) ]);
         Data(i).CutlineFirstProjections = function_cutline(Data(i).CorrectedProjectionFirst,Data(i+1).CorrectedProjectionFirst);
-        disp(['Calculating cutline between SubScans s' num2str(i) ' and s' ...
-            num2str(i+1) ' for projection ' num2str(Data(i).ProjectionNumberLast) ]);
-        Data(i).CutlineLastProjections = function_cutline(Data(i).CorrectedProjectionLast,Data(i+1).CorrectedProjectionLast);
         if Data(i).CutlineFirstProjections < 0
             Data(i).CutlineFirstProjections = 1;
         end
@@ -266,61 +263,24 @@ end
 % Calculate merged Projections for Display Purposes
 Data(1).MergedProjectionFirst = [ Data(1).CorrectedProjectionFirst(:,1:end-Data(1).CutlineFirstProjections) ...
     Data(2).CorrectedProjectionFirst Data(3).CorrectedProjectionFirst(:,Data(2).CutlineFirstProjections:end) ];
-Data(1).MergedProjectionLast = [ Data(1).CorrectedProjectionLast(:,1:end-Data(1).CutlineLastProjections) ...
-    Data(2).CorrectedProjectionLast Data(3).CorrectedProjectionLast(:,Data(2).CutlineLastProjections:end) ];
 
 figure('name','Single and merged projections')%,'position',[150 300 1400 500])
     for i=1:AmountOfSubScans
-        subplot(2,6,i)
+        subplot(2,3,i)
             imshow(Data(i).CorrectedProjectionFirst,[])
             title([ Data(i).SubScanName num2str(sprintf('%04d',Data(i).ProjectionNumberFirst)) ],'interpreter','none')
-        subplot(2,6,i+3)
-            imshow(Data(i).CorrectedProjectionLast,[])
-            title([ Data(i).SubScanName num2str(sprintf('%04d',Data(i).ProjectionNumberLast)) ],'interpreter','none')
     end
-    subplot(2,6,7:9)
+    subplot(2,3,4:6)
         imshow(Data(1).MergedProjectionFirst,[])
         title([ MergedScanName num2str(sprintf('%04d',Data(i).ProjectionNumberFirst)) ...
             ', Cutlines: ' num2str(Data(1).CutlineFirstProjections) '/' ...
             num2str(Data(2).CutlineFirstProjections) ],'interpreter','none')
-    subplot(2,6,10:12)
-        imshow(Data(1).MergedProjectionLast,[])
-        title([ MergedScanName num2str(sprintf('%04d',Data(i).ProjectionNumberLast)) ...
-            ', Cutlines: ' num2str(Data(1).CutlineLastProjections) '/' ...
-            num2str(Data(2).CutlineLastProjections) ],'interpreter','none')
+
 disp('---');
 
 %% SanityCheck of the Cutlines
 for i=1:AmountOfSubScans-1
-    if Data(i).CutlineFirstProjections ~= Data(i).CutlineLastProjections
-        disp([ 'Cutlines for the first and last projection for SubScan s' ...
-            num2str(i) ' do not agree (' num2str(Data(i).CutlineFirstProjections) ' vs. ' ...
-            num2str(Data(i).CutlineLastProjections) '),'])
-        WithinPixel = 2;
-        if abs(Data(i).CutlineFirstProjections - Data(i).CutlineLastProjections) <= WithinPixel
-            disp([ 'but lie within ' num2str(WithinPixel) ' pixels of each other.'])
-            Data(i).Cutline = round(mean([Data(i).CutlineFirstProjections,Data(i).CutlineLastProjections]));
-            disp(['We thus use their mean and the new cutline between SubScan s' ...
-                num2str(i) ' and s' num2str(i+1) ' is: ' num2str(Data(i).Cutline) ])
-        else
-            disp([ 'and are not within ' num2str(WithinPixel) ' pixels of each other.'])
-            warndlg([ 'Cutlines for first and last projection differ for more than ' ...
-                num2str(WithinPixel) ' pixels, we thus need to enter them manually!'],'!! Warning !!')
-            disp(['Please enter new cutline between SubScan s' num2str(i) ' and s'...
-                num2str(i+1) ])
-            Data(i).Cutline = input('[px] ');
-        end
-    elseif (Data(i).CutlineFirstProjections && Data(i).CutlineLastProjections == 1)
-            warndlg([ 'Both Cutlines are calculated to be one, this is probably wrong. Enter the cutlines manually, please.'],'!! Warning !!')
-            disp(['Please enter new cutline between SubScan s' num2str(i) ' and s'...
-                num2str(i+1) ])
-            Data(i).Cutline = input('[px] ');
-    else
-        disp([ 'Cutlines for the first and last projection for SubScan s' ...
-            num2str(i) ' are the same (' num2str(Data(i).CutlineFirstProjections) ' vs. ' ...
-            num2str(Data(i).CutlineLastProjections) '), so we proceed with these...'])
-            Data(i).Cutline = Data(i).CutlineFirstProjections;
-    end
+    Data(i).Cutline = Data(i).CutlineFirstProjections;
 end
 disp('---');
 
@@ -331,6 +291,8 @@ for i=1:AmountOfSubScans-1
 end
 disp('---');
 
+break
+
 %% Resorting Files
 if isunix
     what = 'Hardlink';
@@ -340,29 +302,72 @@ else
     do = 'cp';
 end
 disp([ what 'ing Files to Merge-Directory' ]);
-for i=1:AmountOfSubScans   
+for i=1:AmountOfSubScans
+    disp(['Working on SubScan s' num2str(i) ]);
 	% Generate Counter for shuffling files
 	ResortBar = waitbar(0,['Resorting ' num2str((Data(i).NumDarks + Data(i).NumFlats + Data(i).NumProjections + Data(i).NumFlats)) ' files for SubScan s' num2str(i)],'name','Please Wait...'); 
 	for k=1:Data(i).NumDarks+Data(i).NumFlats+Data(i).NumProjections+Data(i).NumFlats
-        if k == 1:Data(i).NumDarks % Darks
+        if k <= Data(i).NumDarks+Data(i).NumFlats % Pre-Projection
             Counter = k;
-        elseif k == Data(i).NumDarks:Data(i).NumDarks+Data(i).NumFlats % Pre-Flats
-            Counter = k;            
-        elseif k == Data(i).NumDarks+Data(i).NumFlats:Data(i).NumDarks+Data(i).NumFlats+Data(i).NumProjections % Projections
+        elseif ( k>Data(i).NumDarks+Data(i).NumFlats && k<=Data(i).NumDarks+Data(i).NumFlats+Data(i).NumProjections ) % Projections
             Counter = Data(i).NumDarks + Data(i).NumFlats + ( ( k - Data(i).NumDarks- Data(i).NumFlats ) * Interpolation(i) ) ;
+            if i==2
+                Counter = Counter -1;
+            end
         else
-            Counter = k + ((Interpolation(i)-1)*Data(i).NumProjections); % Post-Flats
+            Counter = k + ((Interpolation(i)-1)*Data(i).NumProjections); % Post-Projections
         end
         OriginalFile = [Data(i).SampleFolder filesep 'tif' filesep Data(i).SubScanName num2str(sprintf('%04d',k)) '.tif' ];
         DestinationFile = [ OutputDirectory filesep OutPutTifDirName filesep MergedScanName num2str(sprintf(Decimal,(AmountOfSubScans*Counter)-(AmountOfSubScans-i))) '.tif' ];
         ResortCommand = [ do ' ' OriginalFile ' ' DestinationFile ];
         waitbar(k/(Data(i).NumDarks + Data(i).NumFlats + Data(i).NumProjections + Data(i).NumFlats));
-        %disp(ResortCommand);
+        % disp(ResortCommand);
         [status,result] = system(ResortCommand);
-   end
-   close(ResortBar)
+    end
+    close(ResortBar)
 end
 
+% for i=2 % 1:AmountOfSubScans
+%     disp(['Working on SubScan s' num2str(i) ]);
+%     % ResortBar = waitbar(0,['Resorting ' num2str((Data(i).NumDarks + Data(i).NumFlats + Data(i).NumProjections + Data(i).NumFlats)) ' projections for SubScan s' num2str(i)],'name','Please Wait...');
+%     %% Resort Darks and Flats
+%     % Pre-Projection
+% %     disp(['Resorting Pre-Darks and Pre-Flats for SubScan ' num2str(i) ]);
+% %     ResortBar = waitbar(0,['Resorting ' num2str((Data(i).NumDarks + Data(i).NumFlats)) ' Pre-Darks and -Flats of SubScan s' num2str(i)],'name','Please Wait...');
+% %     for k=1:Data(i).NumDarks + Data(i).NumFlats
+% %         OriginalFile = [Data(i).SampleFolder filesep 'tif' filesep Data(i).SubScanName num2str(sprintf('%04d',k)) '.tif' ];
+% %         DestinationFile = [ OutputDirectory filesep OutPutTifDirName filesep MergedScanName num2str(sprintf(Decimal,(AmountOfSubScans*k)-(AmountOfSubScans-i))) '.tif' ];
+% %         ResortCommand = [ do ' ' OriginalFile ' ' DestinationFile ];
+% %         waitbar(k/(Data(i).NumDarks + Data(i).NumFlats));
+% %         % disp(ResortCommand);
+% %         [status,result] = system(ResortCommand);
+% %     end % k=1:Darks+Flats
+% %     close(ResortBar)
+%     % Post-Projection
+% %     disp(['Resorting Post-Flats for SubScan ' num2str(i) ])
+% %     ResortBar = waitbar(0,['Resorting ' num2str(Data(i).NumFlats) ' Post-Flats of SubScan s' num2str(i)],'name','Please Wait...');
+% %     for k=Data(i).ProjectionNumberLast:Data(i).ProjectionNumberLast + Data(i).NumFlats
+% %         OriginalFile = [Data(i).SampleFolder filesep 'tif' filesep Data(i).SubScanName num2str(sprintf('%04d',k)) '.tif' ];
+% %         DestinationFile = [ OutputDirectory filesep OutPutTifDirName filesep MergedScanName num2str(sprintf(Decimal,(AmountOfSubScans*k)-(AmountOfSubScans-i))) '.tif' ];
+% %         ResortCommand = [ do ' ' OriginalFile ' ' DestinationFile ];
+% %         waitbar(k/(Data(i).NumFlats));
+% %         % disp(ResortCommand);
+% %         [status,result] = system(ResortCommand);
+% %     end % k=End of Projections to End of Files
+% %     close(ResortBar)
+%     %% Resort Projections
+%     disp(['Resortign Projections for SubScan ' num2str(i) ]);
+%         ResortBar = waitbar(0,['Resorting ' num2str(Data(i).ProjectionNumberLast) ' Projections of SubScan s' num2str(i)],'name','Please Wait...');
+%     for k=Data(i).ProjectionNumberFirst:Data(i).ProjectionNumberLast
+%         OriginalFile = [Data(i).SampleFolder filesep 'tif' filesep Data(i).SubScanName num2str(sprintf('%04d',k)) '.tif' ];
+%         DestinationFile = [ OutputDirectory filesep OutPutTifDirName filesep MergedScanName num2str(sprintf(Decimal,((AmountOfSubScans*k)-(AmountOfSubScans-i)))) '.tif' ]; % NUmber outputfile according to Interpolation.
+%         ResortCommand = [ do ' ' OriginalFile ' ' DestinationFile ];
+%         waitbar(k/(Data(i).ProjectionNumberLast));
+%         % disp(ResortCommand);
+%         [status,result] = system(ResortCommand);        
+%     end % k=Start:End of Projections
+%     close(ResortBar)
+% end % i=1:AmountOfSubScans
 disp('Done with Resorting');
 disp('---');
 
@@ -388,6 +393,7 @@ end
 dlmwrite(LogFile, ['Number of darks              : ' num2str(Data(1).NumDarks + Data(2).NumDarks + Data(3).NumDarks) ],'-append','delimiter','');
 dlmwrite(LogFile, ['Number of flats              : ' num2str(Data(1).NumFlats + Data(2).NumFlats + Data(3).NumFlats) ],'-append','delimiter','');   
 dlmwrite(LogFile, ['Number of inter-flats        : ' num2str(Data(1).InterFlats) ],'-append','delimiter','');
+dlmwrite(LogFile, ['Inner scan flag              : ' num2str(Data(1).InnerScan) ],'-append','delimiter','');
 dlmwrite(LogFile, ['Flat frequency               : ' num2str(Data(1).FlatFreq) ],'-append','delimiter','');
 dlmwrite(LogFile, ['Rot Y min position  [deg]    : ' num2str(Data(1).RotYmin) ],'-append','delimiter','');
 dlmwrite(LogFile, ['Rot Y max position  [deg]    : ' num2str(Data(1).RotYmax) ],'-append','delimiter','');
@@ -414,8 +420,22 @@ system(LogFileLinkCommand);
 disp('----');
 
 %% Sinogram generation.
+%disp('Sinogram Generation');
 SinogramCommand = ( [ 'sinooff_tomcat_j_widefieldscan.py ' OutputDirectory filesep OutPutTifDirName ]);
-disp([ 'To calculate the sinograms, paste the following commmand into the Terminal of x02da-cons-2']);
+%warndlg('Generating Sinograms. This takes at least 10 minutes and doesn`t give any feedback. Please be patient.', 'Sinogram Generation');
+%if isunix == 0
+%    disp(['I would now generate Sinograms for ' OutputDirectory ' with the command:']);
+%    disp([ '"' SinogramCommand '"' ]);
+%    disp('But since we are working on a windows machine, we are probably not at the Beamline...');
+%else
+%    disp(['Generating Sinograms for ' OutputDirectory ' with the command:']);
+%    disp([ '"' SinogramCommand '"' ]);
+%    disp('----');
+%    [ status, result] = system(SinogramCommand);
+%end
+
+%disp([ 'If you don`t see any sinograms in ' OutputDirectory filesep 'sin, please execute the following command on x02da-cons-2:']);
+disp([ 'To now calculate the sinograms, paste the following commmand into the Terminal of x02da-cons-2']);
 warndlg('To calculate Sinograms, paste the command given in the MATLAB window.', 'Sinogram Generation');
 disp(' ')
 disp(SinogramCommand)
